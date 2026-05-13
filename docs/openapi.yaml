@@ -1,0 +1,55 @@
+openapi: 3.0.3
+info:
+  title: ShopBot BD API
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000/api
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Sanctum
+paths:
+  /auth/register:
+    post:
+      summary: Register user and business
+      responses: { '201': { description: Created } }
+  /auth/login:
+    post:
+      summary: Login and get token
+      responses: { '200': { description: OK } }
+  /auth/me:
+    get:
+      summary: Current user
+      responses: { '200': { description: OK } }
+  /products:
+    get:
+      summary: Product list
+      parameters:
+        - in: header
+          name: X-Business-ID
+          schema: { type: integer }
+      responses: { '200': { description: OK } }
+    post:
+      summary: Create product
+      responses: { '201': { description: Created } }
+  /customers:
+    get: { summary: Customer list, responses: { '200': { description: OK } } }
+    post: { summary: Create customer, responses: { '201': { description: Created } } }
+  /orders:
+    get: { summary: Order list, responses: { '200': { description: OK } } }
+    post: { summary: Create order, responses: { '201': { description: Created } } }
+  /orders/{id}/status:
+    put:
+      summary: Update order status
+      parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+      responses: { '200': { description: OK } }
+  /reports/dashboard:
+    get: { summary: Dashboard summary, responses: { '200': { description: OK } } }
+  /ai/caption:
+    post: { summary: Generate AI caption, responses: { '200': { description: OK } } }
+  /ai/reply:
+    post: { summary: Generate AI reply, responses: { '200': { description: OK } } }

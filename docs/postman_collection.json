@@ -1,0 +1,181 @@
+{
+  "info": {
+    "name": "ShopBot BD API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000/api"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "business_id",
+      "value": "1"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Register",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/auth/register",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Owner\",\n  \"email\": \"owner@example.com\",\n  \"password\": \"password\",\n  \"password_confirmation\": \"password\",\n  \"business_name\": \"Fresh Achar House\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/auth/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"login\": \"owner@shopbotbd.test\",\n  \"password\": \"password\",\n  \"device_name\": \"web\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Products",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-Business-ID",
+            "value": "{{business_id}}"
+          }
+        ],
+        "url": "{{base_url}}/products"
+      }
+    },
+    {
+      "name": "Create Product",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-Business-ID",
+            "value": "{{business_id}}"
+          }
+        ],
+        "url": "{{base_url}}/products",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Garlic Pickle\",\n  \"sku\": \"GP-100\",\n  \"price\": 250,\n  \"stock_quantity\": 20,\n  \"low_stock_alert\": 5,\n  \"unit\": \"jar\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Customers",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-Business-ID",
+            "value": "{{business_id}}"
+          }
+        ],
+        "url": "{{base_url}}/customers"
+      }
+    },
+    {
+      "name": "Create Order",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-Business-ID",
+            "value": "{{business_id}}"
+          }
+        ],
+        "url": "{{base_url}}/orders",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customer\": {\n    \"name\": \"Rahim\",\n    \"phone\": \"01711111111\",\n    \"address\": \"Dhaka\"\n  },\n  \"order_source\": \"facebook\",\n  \"delivery_charge\": 60,\n  \"items\": [\n    {\n      \"product_id\": 1,\n      \"quantity\": 2\n    }\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Dashboard Report",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-Business-ID",
+            "value": "{{business_id}}"
+          }
+        ],
+        "url": "{{base_url}}/reports/dashboard"
+      }
+    },
+    {
+      "name": "AI Caption",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-Business-ID",
+            "value": "{{business_id}}"
+          }
+        ],
+        "url": "{{base_url}}/ai/caption",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"product_name\": \"Garlic Pickle\",\n  \"price\": 250,\n  \"tone\": \"friendly\",\n  \"language\": \"Banglish\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    }
+  ]
+}
