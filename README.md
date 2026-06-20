@@ -1,32 +1,37 @@
-# ShopBot BD Laravel 12 Backend
+# ShopBot BD — Backend (Laravel 12)
 
-REST API backend for ShopBot BD, built from the uploaded product documentation.
+ShopBD এর REST API ব্যাকএন্ড। ছোট/মাঝারি ব্যবসার জন্য মাল্টি-টেন্যান্ট অনলাইন শপ ও অর্ডার ম্যানেজমেন্ট সিস্টেম।
 
-## Included
+## এখন যা যা ফিচার আছে
 
-- Laravel 12 source structure
-- Laravel Sanctum token authentication
-- Multi-tenant business data isolation by `business_id`
-- RBAC roles and permissions: owner, manager, staff, delivery staff, viewer
-- Product, category, stock movement and low-stock APIs
-- Customer database and customer order history
-- Order, order items, payment, delivery, status history APIs
-- Invoice snapshot + HTML invoice generation ready for PDF service
-- WhatsApp prefilled message link endpoint
-- Reports: dashboard, sales, product, customer, payment, delivery, low stock
-- AI caption/reply endpoints with external AI API fallback and generation logs
-- Rule-based AI insights: best seller, low stock, slow-moving, repeat customer, anomaly
-- Subscription plans and payment history
-- Super admin business monitoring endpoints
-- Seed data: plans, roles, permissions, message templates, demo business
+- **লগইন/রেজিস্ট্রেশন** — Sanctum টোকেন দিয়ে API auth
+- **মাল্টি-বিজনেস সাপোর্ট** — এক সিস্টেমে একাধিক দোকান (business_id ভিত্তিক)
+- **স্টাফ ও রোল** — owner, manager, staff, delivery, viewer
+- **প্রোডাক্ট ম্যানেজমেন্ট** — প্রোডাক্ট, ক্যাটাগরি, ছবি, স্টক মুভমেন্ট, লো-স্টক অ্যালার্ট
+- **কাস্টমার ম্যানেজমেন্ট** — কাস্টমার লিস্ট, ঠিকানা, অর্ডার হিস্টোরি
+- **অর্ডার ম্যানেজমেন্ট** — অর্ডার, অর্ডার আইটেম, স্ট্যাটাস ট্র্যাকিং, ডেলিভারি
+- **পেমেন্ট** — bKash, Nagad ইন্টিগ্রেশন
+- **ইনভয়েস** — HTML/PDF ইনভয়েস জেনারেশন
+- **পাবলিক স্টোরফ্রন্ট** — কাস্টমারদের জন্য পাবলিক শপ পেজ ও চেকআউট
+- **হোয়াটসঅ্যাপ মেসেজ টেমপ্লেট** — অর্ডার শেয়ার করার রেডি লিংক
+- **রিপোর্ট** — সেল, প্রোডাক্ট, কাস্টমার, পেমেন্ট, ডেলিভারি, লো-স্টক রিপোর্ট
+- **AI ফিচার** — ক্যাপশন/রিপ্লাই জেনারেটর, রুল-বেসড ইনসাইট (বেস্ট সেলার, স্লো-মুভিং, অ্যানোমালি)
+- **সাবস্ক্রিপশন প্ল্যান** — প্ল্যান, বিলিং, পেমেন্ট হিস্টোরি
+- **সুপার অ্যাডমিন প্যানেল** — সব বিজনেস মনিটরিং
 
-## Requirements
+## আরও যা যোগ করলে ভালো হবে
 
-- PHP 8.2+
-- Composer
-- MySQL 8+ or MariaDB 10+
+- **SMS নোটিফিকেশন** — অর্ডার কনফার্ম/ডেলিভারি স্ট্যাটাসে SMS
+- **SSLCommerz/Card পেমেন্ট** — bKash/Nagad এর পাশাপাশি কার্ড পেমেন্ট অপশন
+- **কুপন/ডিসকাউন্ট সিস্টেম** — প্রোমো কোড, ফ্ল্যাশ সেল
+- **প্রোডাক্ট রিভিউ/রেটিং**
+- **ইনভেন্টরি সাপ্লায়ার ম্যানেজমেন্ট** — পারচেস অর্ডার, সাপ্লায়ার ট্র্যাকিং
+- **মাল্টি-কারেন্সি/মাল্টি-ভাষা সাপোর্ট**
+- **রিয়েল-টাইম নোটিফিকেশন** — websocket/pusher দিয়ে লাইভ অর্ডার অ্যালার্ট
+- **API রেট লিমিটিং ও অডিট লগ ড্যাশবোর্ড**
+- **ব্যাকআপ/এক্সপোর্ট টুল** — ডেটা CSV/Excel এক্সপোর্ট
 
-## Setup
+## রান করার নিয়ম
 
 ```bash
 cp .env.example .env
@@ -37,85 +42,4 @@ php artisan storage:link
 php artisan serve
 ```
 
-Default seeded login:
-
-```text
-login: owner@shopbotbd.test
-password: password
-```
-
-## Frontend connection
-
-Base URL:
-
-```text
-http://localhost:8000/api
-```
-
-Use `Authorization: Bearer <token>` after login/register. For business-specific requests, pass one of:
-
-```text
-X-Business-ID: 1
-```
-
-or omit it to auto-select the first active business for the logged-in user.
-
-## Core endpoint map
-
-```text
-POST   /api/auth/register
-POST   /api/auth/login
-POST   /api/auth/logout
-GET    /api/auth/me
-GET    /api/business
-PUT    /api/business
-GET    /api/staff
-POST   /api/staff
-GET    /api/categories
-POST   /api/categories
-GET    /api/products
-POST   /api/products
-GET    /api/products/low-stock
-GET    /api/customers
-POST   /api/customers
-GET    /api/orders
-POST   /api/orders
-PUT    /api/orders/{id}/status
-PUT    /api/orders/{id}/payment-status
-PUT    /api/orders/{id}/delivery-status
-POST   /api/orders/{id}/payments
-GET    /api/orders/{id}/invoice
-POST   /api/orders/{id}/invoice/generate
-GET    /api/orders/{id}/whatsapp-message
-GET    /api/reports/dashboard
-GET    /api/reports/sales
-POST   /api/ai/caption
-POST   /api/ai/reply
-GET    /api/ai/insights
-POST   /api/ai/insights/generate
-GET    /api/plans
-GET    /api/subscription
-POST   /api/subscription/change
-```
-
-## Example create order payload
-
-```json
-{
-  "customer": {"name": "Rahim", "phone": "01711111111", "address": "Dhaka"},
-  "order_source": "facebook",
-  "discount_amount": 0,
-  "delivery_charge": 60,
-  "paid_amount": 0,
-  "items": [
-    {"product_id": 1, "quantity": 2}
-  ]
-}
-```
-
-## Notes
-
-- Stock is deducted when an order becomes `confirmed`, `processing`, `packed`, `shipped`, or `delivered`.
-- Stock is returned when an order becomes `cancelled` or `returned`.
-- Invoice snapshot is stored so future product price changes do not alter old invoices.
-- If `AI_API_KEY` and `AI_ENDPOINT` are empty, the AI endpoints return safe fallback text and still log usage.
+**ডেমো লগইন:** `owner@shopbotbd.test` / `password`
