@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Requests\AddPaymentRequest;
 use App\Models\Customer;
 use App\Models\CustomerAddress;
 use App\Models\Invoice;
@@ -219,19 +220,26 @@ class OrderController extends ApiController
         return $this->ok($order, 'Delivery status updated');
     }
 
-    public function addPayment(Request $request, int $id)
+    public function addPayment(AddPaymentRequest $request, int $id)
     {
-        $data = $request->validate(['payment_method' => ['required', 'in:cash,bkash,nagad,rocket,bank,card,cod,other'], 'amount' => ['required', 'numeric', 'min:1'], 'transaction_id' => ['nullable', 'string'], 'payment_status' => ['nullable', 'in:pending,paid,failed,refunded'], 'paid_at' => ['nullable', 'date'], 'note' => ['nullable', 'string']]);
-        $order = Order::where('business_id', $this->business($request)->id)->findOrFail($id);
+        $data = $request->validated();
+        $order = $request->resolveOrder();
         $payment = DB::transaction(function () use ($order, $data, $request) {
-            $payment = Payment::create(['business_id' => $order->business_id, 'order_id' => $order->id, 'payment_method' => $data['payment_method'], 'amount' => $data['amount'], 'transaction_id' => $data['transaction_id'] ?? null, 'payment_status' => $data['payment_status'] ?? 'paid', 'paid_at' => $data['paid_at'] ?? now(), 'note' => $data['note'] ?? null, 'created_by' => $request->user()->id]);
+            $payment = Payment::create(['business_id' => $order->business_id, 'order_id' => $order->id, 'payment_method' => $data['payment_method'], 'amount' => $data['amount'], 'transaction_id' => $data['transaction_id'] ?? null, 'payment_status' => 'paid', 'paid_at' => $data['paid_at'] ?? now(), 'note' => $data['note'] ?? null, 'created_by' => $request->user()->id]);
             $paid = (float)$order->payments()->where('payment_status', 'paid')->sum('amount');
             $order->update(['paid_amount' => $paid, 'due_amount' => max(0, (float)$order->total_amount - $paid), 'payment_status' => $this->orders->paymentStatus($paid, (float)$order->total_amount)]);
             OrderStatusHistory::create(['order_id' => $order->id, 'changed_by' => $request->user()->id, 'previous_status' => null, 'new_status' => $order->payment_status, 'status_type' => 'payment', 'note' => 'Payment added', 'created_at' => now()]);
             if ($order->customer) $this->orders->updateCustomerStats($order->customer);
             return $payment;
         });
-        return $this->ok($payment, 'Payment added', 201);
+        $order->refresh();
+        return $this->ok([
+            'payment' => $payment,
+            'total_amount' => (float) $order->total_amount,
+            'paid_amount' => (float) $order->paid_amount,
+            'due_amount' => $order->dueAmount(),
+            'is_paid_full' => $order->isPaidFull(),
+        ], 'Payment added', 201);
     }
 
     public function invoice(Request $request, int $id)

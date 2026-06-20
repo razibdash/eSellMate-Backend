@@ -54,4 +54,14 @@ class Order extends Model
     {
         return $this->hasOne(Invoice::class);
     }
+
+    public function dueAmount(): float
+    {
+        return max(0, (float) $this->total_amount - (float) $this->paid_amount);
+    }
+
+    public function isPaidFull(): bool
+    {
+        return $this->dueAmount() <= 0;
+    }
 }
