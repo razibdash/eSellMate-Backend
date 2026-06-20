@@ -34,6 +34,14 @@ return [
             'pg_public_key' => env('NAGAD_PG_PUBLIC_KEY'),
         ],
     ],
+    'sms' => [
+        'provider' => env('SMS_PROVIDER', 'sslwireless'),
+        'sslwireless' => [
+            'base_url' => env('SSLWIRELESS_BASE_URL', 'https://smsplus.sslwireless.com'),
+            'api_token' => env('SSLWIRELESS_API_TOKEN'),
+            'sid' => env('SSLWIRELESS_SID'),
+        ],
+    ],
     'template_variables' => ['customer_name','order_id','invoice_no','total_amount','payment_status','delivery_status','business_name'],
     'ai_api_key' => env('AI_API_KEY'),
     'ai_endpoint' => env('AI_ENDPOINT'),

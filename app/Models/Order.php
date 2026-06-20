@@ -55,6 +55,11 @@ class Order extends Model
         return $this->hasOne(Invoice::class);
     }
 
+    public function smsLogs()
+    {
+        return $this->hasMany(SmsLog::class)->latest();
+    }
+
     public function dueAmount(): float
     {
         return max(0, (float) $this->total_amount - (float) $this->paid_amount);

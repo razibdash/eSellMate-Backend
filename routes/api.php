@@ -134,6 +134,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::put('orders/{id}/payment-status', [OrderController::class, 'updatePaymentStatus'])->middleware('permission:manage_payments');
         Route::put('orders/{id}/delivery-status', [OrderController::class, 'updateDeliveryStatus'])->middleware('permission:edit_orders');
         Route::post('orders/{id}/payments', [OrderController::class, 'addPayment'])->middleware('permission:manage_payments');
+        Route::post('orders/{id}/resend-sms', [OrderController::class, 'resendSms'])->middleware('permission:edit_orders');
         Route::get('orders/{id}/invoice', [OrderController::class, 'invoice'])->middleware('permission:create_orders');
         Route::post('orders/{id}/invoice/generate', [OrderController::class, 'generateInvoice'])->middleware('permission:create_orders');
         Route::get('orders/{id}/whatsapp-message', [OrderController::class, 'whatsappMessage'])->middleware('permission:create_orders');

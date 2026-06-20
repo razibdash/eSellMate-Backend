@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\OrderPlaced;
+use App\Events\OrderStatusUpdated;
 use App\Http\Requests\AddPaymentRequest;
 use App\Models\Customer;
 use App\Models\CustomerAddress;
@@ -11,8 +13,10 @@ use App\Models\OrderItem;
 use App\Models\OrderStatusHistory;
 use App\Models\Payment;
 use App\Models\Product;
+use App\Models\SmsLog;
 use App\Models\StockMovement;
 use App\Services\OrderService;
+use App\Services\SmsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -138,13 +142,15 @@ class OrderController extends ApiController
             }
             if ($customer) $this->orders->updateCustomerStats($customer);
 
+            event(new OrderPlaced($order));
+
             return $this->ok($order->fresh(['customer', 'items', 'payments', 'invoice']), 'Order created', 201);
         });
     }
 
     public function show(Request $request, int $id)
     {
-        return $this->ok(Order::where('business_id', $this->business($request)->id)->with(['business', 'customer', 'items.product', 'payments', 'histories', 'invoice'])->findOrFail($id), 'Order details');
+        return $this->ok(Order::where('business_id', $this->business($request)->id)->with(['business', 'customer', 'items.product', 'payments', 'histories', 'invoice', 'smsLogs'])->findOrFail($id), 'Order details');
     }
 
     public function update(Request $request, int $id)
@@ -217,6 +223,7 @@ class OrderController extends ApiController
         $old = $order->delivery_status;
         $order->update(['delivery_status' => $data['delivery_status'], 'delivered_at' => $data['delivery_status'] === 'delivered' ? now() : $order->delivered_at]);
         OrderStatusHistory::create(['order_id' => $order->id, 'changed_by' => $request->user()->id, 'previous_status' => $old, 'new_status' => $data['delivery_status'], 'status_type' => 'delivery', 'note' => $data['note'] ?? null, 'created_at' => now()]);
+        event(new OrderStatusUpdated($order, $data['delivery_status']));
         return $this->ok($order, 'Delivery status updated');
     }
 
@@ -240,6 +247,20 @@ class OrderController extends ApiController
             'due_amount' => $order->dueAmount(),
             'is_paid_full' => $order->isPaidFull(),
         ], 'Payment added', 201);
+    }
+
+    public function resendSms(Request $request, int $id)
+    {
+        $order = Order::where('business_id', $this->business($request)->id)->findOrFail($id);
+        $log = SmsLog::where('order_id', $order->id)->latest()->first();
+
+        if (!$log) {
+            return $this->fail('No SMS has been sent for this order yet', 404);
+        }
+
+        app(SmsService::class)->resend($log);
+
+        return $this->ok($log->fresh(), 'SMS queued for resend');
     }
 
     public function invoice(Request $request, int $id)
