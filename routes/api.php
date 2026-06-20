@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\Api\AiController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CouponController;
 use App\Http\Controllers\Api\CrudController;
+use App\Http\Controllers\Api\FlashSaleController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\PublicStorefrontController;
 use App\Http\Controllers\Api\PaymentCallbackController;
@@ -32,6 +34,11 @@ Route::prefix('public')->middleware('storefront')->group(function () {
     Route::get('products/{slug}', [PublicStorefrontController::class, 'product']);
     Route::post('checkout', [PublicStorefrontController::class, 'checkout']);
     Route::get('payment-status/{reference}', [PublicStorefrontController::class, 'paymentStatus']);
+});
+
+Route::middleware('storefront')->group(function () {
+    Route::get('flash-sales', [FlashSaleController::class, 'active']);
+    Route::post('apply-coupon', [CouponController::class, 'apply']);
 });
 
 Route::middleware(['auth:sanctum'])->group(function () {
@@ -100,6 +107,16 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('products/{id}/image', [CrudController::class, 'updateProduct'])->middleware('permission:manage_products');
         Route::get('stock/movements', [CrudController::class, 'allStockMovements'])->middleware('permission:manage_products');
         Route::get('stock/low-stock', [CrudController::class, 'lowStock'])->middleware('permission:manage_products');
+
+        Route::get('coupons', [CouponController::class, 'index'])->middleware('permission:manage_products');
+        Route::post('coupons', [CouponController::class, 'store'])->middleware('permission:manage_products');
+        Route::put('coupons/{id}', [CouponController::class, 'update'])->middleware('permission:manage_products');
+        Route::delete('coupons/{id}', [CouponController::class, 'destroy'])->middleware('permission:manage_products');
+
+        Route::get('flash-sales/manage', [FlashSaleController::class, 'index'])->middleware('permission:manage_products');
+        Route::post('flash-sales', [FlashSaleController::class, 'store'])->middleware('permission:manage_products');
+        Route::put('flash-sales/{id}', [FlashSaleController::class, 'update'])->middleware('permission:manage_products');
+        Route::delete('flash-sales/{id}', [FlashSaleController::class, 'destroy'])->middleware('permission:manage_products');
 
         Route::get('customers', [CrudController::class, 'customers'])->middleware('permission:manage_customers');
         Route::post('customers', [CrudController::class, 'createCustomer'])->middleware('permission:manage_customers');
