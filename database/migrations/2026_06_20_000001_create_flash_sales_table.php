@@ -13,8 +13,8 @@ return new class extends Migration
             $table->foreignId('business_id')->constrained()->cascadeOnDelete();
             $table->foreignId('product_id')->constrained()->cascadeOnDelete();
             $table->decimal('discount_percent', 5, 2);
-            $table->timestamp('starts_at');
-            $table->timestamp('ends_at');
+            $table->dateTime('starts_at');
+            $table->dateTime('ends_at');
             $table->boolean('is_active')->default(true);
             $table->softDeletes();
             $table->timestamps();

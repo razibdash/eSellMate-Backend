@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AiController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\CouponController;
 use App\Http\Controllers\Api\CrudController;
 use App\Http\Controllers\Api\FlashSaleController;
@@ -42,6 +43,17 @@ Route::middleware('storefront')->group(function () {
     Route::post('apply-coupon', [CouponController::class, 'apply']);
     Route::get('products/{product}/reviews', [ReviewController::class, 'productReviews']);
     Route::post('reviews', [ReviewController::class, 'store']);
+});
+
+// Chat is reachable by both anonymous customers (via a per-room token) and
+// authenticated business staff (via Sanctum), so actor identity is resolved
+// inside the controller rather than gated by route middleware.
+Route::prefix('chat')->group(function () {
+    Route::post('rooms', [ChatController::class, 'getOrCreateRoom']);
+    Route::get('rooms/{room}/messages', [ChatController::class, 'messages']);
+    Route::post('rooms/{room}/messages', [ChatController::class, 'store']);
+    Route::patch('rooms/{room}/read', [ChatController::class, 'markRead']);
+    Route::post('broadcasting/auth', [ChatController::class, 'broadcastAuth']);
 });
 
 Route::middleware(['auth:sanctum'])->group(function () {
