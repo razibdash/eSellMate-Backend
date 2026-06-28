@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -10,6 +11,11 @@ class Product extends Model
     use SoftDeletes;
 
     protected $guarded = [];
+
+    protected $appends = [
+        'average_rating',
+        'review_count',
+    ];
 
     protected $casts = [
         'price' => 'decimal:2',
@@ -37,5 +43,24 @@ class Product extends Model
     public function images()
     {
         return $this->hasMany(ProductImage::class);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    protected function averageRating(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => round((float) $this->reviews()->approved()->avg('rating'), 1),
+        );
+    }
+
+    protected function reviewCount(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->reviews()->approved()->count(),
+        );
     }
 }

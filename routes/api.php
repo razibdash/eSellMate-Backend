@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\PublicStorefrontController;
 use App\Http\Controllers\Api\PaymentCallbackController;
 use App\Http\Controllers\Api\ReportController;
+use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\StorefrontController;
 use App\Http\Controllers\Api\SubscriptionController;
 use App\Http\Controllers\Api\SuperAdminController;
@@ -39,6 +40,8 @@ Route::prefix('public')->middleware('storefront')->group(function () {
 Route::middleware('storefront')->group(function () {
     Route::get('flash-sales', [FlashSaleController::class, 'active']);
     Route::post('apply-coupon', [CouponController::class, 'apply']);
+    Route::get('products/{product}/reviews', [ReviewController::class, 'productReviews']);
+    Route::post('reviews', [ReviewController::class, 'store']);
 });
 
 Route::middleware(['auth:sanctum'])->group(function () {
@@ -117,6 +120,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('flash-sales', [FlashSaleController::class, 'store'])->middleware('permission:manage_products');
         Route::put('flash-sales/{id}', [FlashSaleController::class, 'update'])->middleware('permission:manage_products');
         Route::delete('flash-sales/{id}', [FlashSaleController::class, 'destroy'])->middleware('permission:manage_products');
+
+        Route::get('admin/reviews', [ReviewController::class, 'adminIndex'])->middleware('permission:manage_products');
+        Route::patch('admin/reviews/{review}/approve', [ReviewController::class, 'approve'])->middleware('permission:manage_products');
 
         Route::get('customers', [CrudController::class, 'customers'])->middleware('permission:manage_customers');
         Route::post('customers', [CrudController::class, 'createCustomer'])->middleware('permission:manage_customers');
